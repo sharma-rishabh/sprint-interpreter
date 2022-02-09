@@ -1,46 +1,62 @@
+#  set -x
 
 function addition () {
-    local program=($1)
+    local sprint_program=($1)
     local current_index=$2
     
     local first_index=$(( ${current_index} + 1 ))
     local second_index=$(( ${current_index} + 2 ))
     local third_index=$(( ${current_index} + 3 ))
     
-    local first_number=${program[$first_index]}
-    local second_number=${program[$second_index]}
+    local first_number=${sprint_program[${sprint_program[$first_index]}]}
+    local second_number=${sprint_program[${sprint_program[$second_index]}]}
     
+    if [[ -z "$first_number"  ]] || [[ -z "$second_number"  ]]
+    then
+        echo "Addition : Array location you're trying to access was not intialized."
+        return 1
+    fi
+
+
     local sum=$(( $first_number + $second_number ))
-    local storing_location=${program[${third_index}]}
-    local program[${storing_location}]=$sum
+    local storing_location=${sprint_program[${third_index}]}
+    local sprint_program[${storing_location}]=$sum
     
-    echo "${program[@]}"
+    echo "${sprint_program[@]}"
 }
 
 function interpreter () {
-    local program=($1)
+    local sprint_program=($1)
     local index=0
-    while [[ ${program[$index]} -ne 99 ]] && [[ ${program[$index]} -ne "" ]]
+    while [[ ${sprint_program[$index]} -ne 99 ]] && [[ ${sprint_program[$index]} -ne "" ]]
     do
-        if [[ ${program[$index]} -eq 1 ]]
+        if [[ ${sprint_program[$index]} -eq 1 ]]
         then
-            program=($( addition "`echo ${program[@]}`" "$index" ))
+            sprint_program=($( addition "`echo ${sprint_program[@]}`" "$index" ))
+            addition_status=$?
+            if [[ ${addition_status} -eq 1 ]]
+            then
+                echo ${sprint_program[@]}
+                return 1
+            fi
             index=$(( ${index} + 2 ))
         fi
-        
+        echo ${sprint_program[@]}
         index=$(( $index + 1 ))
     done
-    echo ${program[@]}
 }
 
 function main () {
-    local program="$1"
-    # if [[ -z ${program} ]]
+    local sprint_program="$1"
+    # if [[ -z ${sprint_program} ]]
     # then
     #     echo "Code string is empty"
     #     exit
     # fi
-    interpreter "${program}"
+    interpreter "${sprint_program}"
+    interpreter_status=$?
+    if [[ $interpreter_status -eq 1 ]]
+    then
+        exit 1
+    fi
 }
-
-main "$1"
