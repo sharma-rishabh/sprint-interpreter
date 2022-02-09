@@ -41,6 +41,20 @@ function interpreter () {
             fi
             index=$(( ${index} + 2 ))
         fi
+        if [[ ${sprint_program[$index]} -eq 2 ]]
+        then
+            local first_index=$(( $index + 1 ))
+            local second_index=$(( $index + 2 ))
+            local third_index=$(( $index + 3 ))
+            local first_number=${sprint_program[${sprint_program[$first_index]}]}
+            local second_number=${sprint_program[${sprint_program[$second_index]}]}
+            index=$(( ${index} + 3 ))
+            if [[ ${first_number} -lt ${second_number} ]]
+            then
+                index=${sprint_program[$third_index]}
+            fi
+            continue
+        fi
         echo ${sprint_program[@]}
         index=$(( $index + 1 ))
     done
