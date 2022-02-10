@@ -1,5 +1,11 @@
 #  set -x
 
+ADD=1
+JUMP_LT=2
+STOP=99
+
+ERROR_ARRAY=( "No Error" "Addition : Array location you're trying to access is not intialized." "Jump_lt : Array location you're trying to access is not intialized." "Jump_lt : Cannot jump to the requested location as it is not initialized." )
+
 function addition () {
     local sprint_program=($1)
     local current_index=$2
@@ -24,7 +30,7 @@ function addition () {
     echo "${sprint_program[@]}"
 }
 
-function jump_if() {
+function jump_lt() {
     local sprint_program=($1)
     local current_index=$2
     
@@ -56,27 +62,16 @@ function jump_if() {
 
 function error_handler () {
     local error_status=$1
-    if [[ $error_status -eq 1 ]]
-    then
-        echo "Addition : Array location you're trying to access is not intialized."
-    fi
-    if [[ $error_status -eq 2 ]]
-    then
-        echo "Jump_if : Array location you're trying to access is not intialized."
-    fi
-    if [[ $error_status -eq 3 ]]
-    then
-        echo "Jump_if : Cannot jump to the requested location as it is not initialized."
-    fi
+    echo ${ERROR_ARRAY[$error_status]}
 }
 
 
 function interpreter () {
     local sprint_program=($1)
     local index=0
-    while [[ ${sprint_program[$index]} -ne 99 ]] && [[ ${sprint_program[$index]} -ne "" ]]
+    while [[ ${sprint_program[$index]} -ne $STOP ]] && [[ -z ${sprint_program[$index]} ]]
     do
-        if [[ ${sprint_program[$index]} -eq 1 ]]
+        if [[ ${sprint_program[$index]} -eq $ADD ]]
         then
             sprint_program=($( addition "`echo ${sprint_program[@]}`" "$index" ))
             addition_status=$?
@@ -90,14 +85,14 @@ function interpreter () {
             continue
         fi
 
-        if [[ ${sprint_program[$index]} -eq 2 ]]
+        if [[ ${sprint_program[$index]} -eq $JUMP_LT ]]
         then
-            index=$( jump_if "`echo ${sprint_program[@]}`" "$index" )
-            jump_if_status=$?
+            index=$( jump_lt "`echo ${sprint_program[@]}`" "$index" )
+            jump_lt_status=$?
             
-            if [[ ${jump_if_status} -ne 0 ]]
+            if [[ ${jump_lt_status} -ne 0 ]]
             then
-                return ${jump_if_status}
+                return ${jump_lt_status}
             fi
             continue
         fi
